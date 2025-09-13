@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.project
+.classpath
+.settings/
+
+# macOS
+.DS_Store
+
+# Log files
+*.log
