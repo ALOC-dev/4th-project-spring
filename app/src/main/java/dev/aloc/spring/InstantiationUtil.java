@@ -17,10 +17,12 @@ public class InstantiationUtil {
             throw new IllegalStateException(type.getName() + ": There is no constructor");
         }
         
-        // 1. @Autowired가 붙은 생성자
+        // @Autowired가 붙은 생성자들 리스트에 저장
         List<Constructor<?>> autowiredCtors = Arrays.stream(ctors)
             .filter(ctor -> ctor.isAnnotationPresent(Autowired.class))
             .toList();
+
+        // 1. 적어도 하나 저장되었을 경우
         if (!autowiredCtors.isEmpty()) {
             if (autowiredCtors.size() == 1) {
                 return autowiredCtors.get(0);
@@ -30,7 +32,7 @@ public class InstantiationUtil {
             }
         }
         
-        // 2. 단일 생성자
+        // 2. 저장 하나도 안 되어 있을 때 생성자가 하나였을 경우
         if (ctors.length == 1) {
             return ctors[0];
         }

@@ -102,7 +102,7 @@ public class SimpleBeanFactory implements BeanFactory {
     }
     
     /*
-     * 의존성추가 및 빈등록이 모두 끝난 뒤 외부에서 검사 용도로만 사용
+     * 의존성 추가 및 빈등록이 모두 끝난 뒤 외부에서 검사 용도로만 사용
      * getBean()과 달리 beans 목록에 없으면 defs에도 없는 상태가 됨, 생성 과정 없이 바로 에러 발생시킴
      */
     @Override

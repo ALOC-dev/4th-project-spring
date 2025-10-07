@@ -10,7 +10,8 @@ public class App {
 //    }
     
     public static void main(String[] args) {
-        
+
+        // 일단 수동으로 인자에 넣기
         Set<Class<?>> beans = Set.of(MyService.class, MyRepository.class);
         
         SimpleBeanFactory sbf = new SimpleBeanFactory();
