@@ -1,6 +1,9 @@
 package dev.aloc.spring;
 
 import dev.aloc.spring.enums.CreationStatus;
+import dev.aloc.spring.exception.BeanCreationException;
+import dev.aloc.spring.exception.CircularDependencyException;
+import dev.aloc.spring.exception.NoSuchBeanDefinitionException;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
@@ -50,12 +53,12 @@ public class SimpleBeanFactory implements BeanFactory {
             // 아직 생성 중인 빈을 필요로 한다 == 순환참조
             // StackOverflow 발생 전 미리 끊어버리기
             if (def.getStatus() == CreationStatus.CREATING) {
-                throw new RuntimeException("순환 참조 발생!");
+                throw new CircularDependencyException("순환 참조가 발견되었습니다: " + beanType.getName());
             }
             return createBean(def);
         }
-        
-        throw new RuntimeException(beanType.getName() + " 타입의 Bean을 찾을 수 없습니다.");
+
+        throw new NoSuchBeanDefinitionException(beanType.getName() + " 타입의 Bean 정의를 찾을 수 없습니다.");
     }
     
     /*
@@ -96,8 +99,14 @@ public class SimpleBeanFactory implements BeanFactory {
             def.setStatus(CreationStatus.CREATED); // '생성 완료'로 전환
             return bean;
             
+        } catch (NoSuchBeanDefinitionException e) {
+            String message = "Bean '" + def.getBeanType().getName() + "' 생성 실패: 생성자 파라미터 타입인 '"
+                + e.getMessage().split(" ")[0] // "dev.aloc.spring.MyRepository" 같은 부분
+                + "' 타입의 Bean 정의를 찾을 수 없습니다.";
+            throw new BeanCreationException(message, e);
         } catch (Exception e) {
-            throw new RuntimeException("생성자 주입 에러 발생: " + e.getMessage());
+            String message = "Bean '" + def.getBeanType().getName() + "' 생성 실패";
+            throw new BeanCreationException(message, e);
         }
     }
     
@@ -112,7 +121,9 @@ public class SimpleBeanFactory implements BeanFactory {
         
         // 찾는 Bean이 등록되지 않았을 경우 예외
         if (bean == null) {
-            throw new RuntimeException(beanType.getName() + " 타입의 Bean을 찾을 수 없습니다.");
+            throw new NoSuchBeanDefinitionException(
+                beanType.getName() + " 타입으로 등록된 Bean 인스턴스를 찾을 수 없습니다."
+            );
         }
         
         // 객체를 T로 형변환 한 뒤 반환
@@ -145,6 +156,6 @@ public class SimpleBeanFactory implements BeanFactory {
         if (t == double.class) {
             return 0d;
         }
-        throw new IllegalArgumentException("Unsupported primitive: " + t);
+        throw new IllegalArgumentException("지원하지 않는 primitive 타입: " + t);
     }
 }

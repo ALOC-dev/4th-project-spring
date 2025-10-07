@@ -2,6 +2,8 @@ package dev.aloc.spring;
 
 import dev.aloc.spring.enums.CreationStatus;
 import dev.aloc.spring.enums.Scope;
+import dev.aloc.spring.exception.BeanCreationException;
+import dev.aloc.spring.exception.ConstructorResolutionException;
 import java.lang.reflect.Constructor;
 import java.util.Objects;
 
@@ -25,8 +27,10 @@ public class BeanDefinition {
             this.injectionCtor = InstantiationUtil.resolveConstructor(beanType);
             injectionCtor.setAccessible(true);
             this.paramTypes = injectionCtor.getParameterTypes();
+        } catch (ConstructorResolutionException e) {
+            throw new BeanCreationException(beanType.getName() + "의 BeanDefinition 생성 실패: 주입할 생성자를 결정할 수 없습니다.", e);
         } catch (Exception e) {
-            throw new RuntimeException("생성자 인식 실패: " + e.getCause());
+            throw new BeanCreationException(beanType.getName() + "의 BeanDefinition 생성 실패", e);
         }
     }
     

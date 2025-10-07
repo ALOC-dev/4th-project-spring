@@ -2,6 +2,7 @@ package dev.aloc.spring;
 
 import dev.aloc.spring.annotation.Autowired;
 import dev.aloc.spring.annotation.Component;
+import dev.aloc.spring.exception.ConstructorResolutionException;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +15,7 @@ public class InstantiationUtil {
         Constructor<?>[] ctors = type.getDeclaredConstructors();
         // 생성자가 없을 경우
         if (ctors.length == 0) {
-            throw new IllegalStateException(type.getName() + ": There is no constructor");
+            throw new IllegalStateException(type.getName() + ": 생성자가 없습니다.");
         }
         
         // @Autowired가 붙은 생성자들 리스트에 저장
@@ -27,8 +28,9 @@ public class InstantiationUtil {
             if (autowiredCtors.size() == 1) {
                 return autowiredCtors.get(0);
             } else {
-                throw new IllegalStateException(
-                    type.getName() + ": There are more than 1 autowired constructors");
+                throw new ConstructorResolutionException(
+                    type.getName() + ": @Autowired가 지정된 생성자가 두 개 이상입니다."
+                );
             }
         }
         
@@ -58,8 +60,10 @@ public class InstantiationUtil {
         if (maxBeansCtors.size() == 1) {
             return maxBeansCtors.get(0);
         }
-        
-        throw new IllegalStateException(
-            type.getName() + ": Ambiguous constructors with max parameter count");
+
+        throw new ConstructorResolutionException(
+            type.getName() + ": 의존성 주입에 사용할 생성자를 특정할 수 없습니다."
+        );
+
     }
 }
