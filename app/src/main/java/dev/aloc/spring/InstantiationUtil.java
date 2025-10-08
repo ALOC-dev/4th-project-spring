@@ -8,8 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class InstantiationUtil {
-    // @Autowired 붙은 생성자를 찾아주는 메소드
-    // @Autowired가 붙은 생성자 -> 단일 생성자 -> 파라미터가 가장 많은 생성자 순으로 찾기
+    /**
+     * 우선순위에 따라 BeanDefinition에 들어갈 최적의 생성자 하나를 찾는 메소드.
+     * <p>
+     * 우선순위는 @Autowired가 붙은 생성자 -> 단일 생성자 -> 파라미터가 가장 많은 생성자 순으로 찾기
+     *
+     * @param type
+     * @return
+     */
     public static Constructor<?> resolveConstructor(Class<?> type) {
         
         Constructor<?>[] ctors = type.getDeclaredConstructors();
@@ -22,7 +28,7 @@ public class InstantiationUtil {
         List<Constructor<?>> autowiredCtors = Arrays.stream(ctors)
             .filter(ctor -> ctor.isAnnotationPresent(Autowired.class))
             .toList();
-
+        
         // 1. 적어도 하나 저장되었을 경우
         if (!autowiredCtors.isEmpty()) {
             if (autowiredCtors.size() == 1) {
@@ -60,10 +66,10 @@ public class InstantiationUtil {
         if (maxBeansCtors.size() == 1) {
             return maxBeansCtors.get(0);
         }
-
+        
         throw new ConstructorResolutionException(
             type.getName() + ": 의존성 주입에 사용할 생성자를 특정할 수 없습니다."
         );
-
+        
     }
 }
