@@ -9,67 +9,77 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Component 어노테이션이 붙은 클래스들을 Bean으로 만들기 위한 클래스이다.
+ */
 public class SimpleBeanFactory implements BeanFactory {
     // Bean에 대한 메타정보를 담아두는 Map
     private final Map<Class<?>, BeanDefinition> defs = new ConcurrentHashMap<>();
     // 실제 Bean 싱글턴을 담는 Map
     private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
     
-    // @Component 붙은 클래스를 받아서 defs와 beans에 차례로 등록해주는 메소드
+    /**
+     * Component 어노테이션이 붙은 클래스들을 받아서 defs와 beans에 차례로 등록해준다. 처음에 모든 @Component 클래스에 대해
+     * BeanDefinition을 생성한다. 이를 통해 "defs 안에 있으면 반드시 bean으로 만들어야 하는 것"으로 간주할 수 있다.
+     *
+     * @param classesToRegister Component 어노테이션이 붙은 클래스들의 집합.
+     */
     @Override
     public void registerBeans(Set<Class<?>> classesToRegister) {
-        /*
-         * 일단 처음엔 @Component가 붙어있는 (+scope가 singleton인것까지 걸러주면 더 좋음)
-           Class들만 받아서 전부 defs에 BeanDefinition객체 생성해서 넣어주기
-         * "defs에 있으면 다 bean으로 만들어야 하는 것"으로 간주할 수 있음
-         */
+        // Set 안의 모든 클래스들에 대해 BeanDefinition 만들어 두기.
         for (Class<?> clazz : classesToRegister) {
             defs.put(clazz, new BeanDefinition(clazz));
         }
         
+        // 아직 Bean으로 등록되지 않은 클래스에 대해 Bean 생성 및 등록하기.
         for (Class<?> clazz : classesToRegister) {
             if (!beans.containsKey(clazz)) {
-                getBean(clazz); // 여기서 Bean 생성 및 맵에 넣어주는것까지 다 함
+                getBean(clazz);
             }
         }
     }
     
-    /*
-     * Bean 생성 과정에서 이미 생성되었는지 확인하기 위해 사용하는 메소드
-     * 생성되지 않은 Bean은 createBean() 호출을 통해 생성,
-       createBean() 내부에서 다시 getBean()을 호출하기 때문에 재귀호출 구조가 됨
+    /**
+     * 이미 등록된 Bean을 찾거나 없으면 새로 만들어 반환한다. 생성되지 않은 Bean은 createBean() 호출을 통해 생성, createBean() 내부에서 다시
+     * getBean()을 호출하기 때문에 재귀호출 구조가 된다.
      *
-     * 순환참조 발생 시 에러처리 필요 (StackOverflowError 등)
+     * @param beanType Bean으로 등록되었는지 확인하고자 하는 클래스.
+     * @return 찾았거나 새로 생성한 Bean을 맵에 넣을 수 있도록 Object 형태로 되돌려 준다.
      */
     @Override
     public Object getBean(Class<?> beanType) {
         Object bean = beans.get(beanType);
         if (bean != null) {
+            // 해당 클래스가 Bean으로 등록된 경우: 찾아서 되돌려 줌
             return bean;
         }
         
         BeanDefinition def = defs.get(beanType);
         if (def != null) {
-            // 아직 생성 중인 빈을 필요로 한다 == 순환참조
-            // StackOverflow 발생 전 미리 끊어버리기
+            // StackOverflow 발생 전 미리 끊어준다.  아직 생성 중인 빈을 필요로 한다 == 순환참조를 의미
             if (def.getStatus() == CreationStatus.CREATING) {
                 throw new CircularDependencyException("순환 참조가 발견되었습니다: " + beanType.getName());
             }
+            // BeanDefinition만 있고 아직 Bean으로 등록되지는 않은 경우: 새로 만들어서 반환.
             return createBean(def);
         }
-
+        
+        // defs와 beans에 둘 다 들어있지 않은 것은 Bean으로 만들 필요가 없는 클래스이다.
         throw new NoSuchBeanDefinitionException(beanType.getName() + " 타입의 Bean 정의를 찾을 수 없습니다.");
     }
     
-    /*
-     * 생성되지 않은 Bean을 만들어주는 메소드
-     * 클래스의 메타정보(생성자 종류나 매개변수 등)를 받아 매개변수의 타입에 따라 또다른 bean(getBean 재귀호출),
-       원시자료형이면 디폴트값, 또는 null(아직 임시 조치중)을 구분해서 넣어줌
+    /**
+     * 아직 생성되지 않은 Bean을 만들기 위한 메소드이다. 클래스의 메타정보(생성자 종류나 매개변수 등)를 받아 매개변수의 타입에 따라 또다른 bean(getBean
+     * 재귀호출), 원시자료형이면 디폴트값, 또는 null(아직 임시 조치중)을 구분해서 넣어준다.
+     *
+     * @param def Bean으로 생성하고자 하는 클래스의 BeanDefinition.
+     * @return 생성된 Bean을 beans 맵에 들어갈 수 있도록 Object 형태로 되돌려 준다.
      */
     @Override
     public Object createBean(BeanDefinition def) {
         try {
-            def.setStatus(CreationStatus.CREATING); // '생성 중'으로 상태 전환
+            // '생성 중'으로 상태 전환
+            def.setStatus(CreationStatus.CREATING);
             
             Constructor<?> ctor = def.getInjectionCtor();
             Class<?>[] paramTypes = def.getParamTypes();
@@ -79,15 +89,18 @@ public class SimpleBeanFactory implements BeanFactory {
                 Class<?> type = paramTypes[i];
                 
                 if (defs.containsKey(type)) {
+                    // Component가 붙은 클래스를 매개변수로 갖는 경우: getBean으로 찾거나 생성.
                     args[i] = getBean(type);
                     
                 } else if (type.isInterface()) {
-                    // 혹시 필요할까봐 남기기
+                    // 간혹 인터페이스를 Bean으로 만들려는 경우가 있기 때문에 인터페이스의 경우를 따로 분리함.
                     args[i] = null;
                     
                 } else if (type.isPrimitive()) {
+                    // 원시 자료형일 경우: 기본값을 반환하는 함수로 기본값 넣어주기
                     args[i] = defaultPrimitive(type);
                 } else {
+                    // 그 외 자료형은 일단 null로 넣어주기
                     args[i] = null;
                 }
             }
@@ -96,7 +109,8 @@ public class SimpleBeanFactory implements BeanFactory {
             if (!beans.containsKey(def.getBeanType())) {
                 beans.put(def.getBeanType(), bean);
             }
-            def.setStatus(CreationStatus.CREATED); // '생성 완료'로 전환
+            // '생성 완료'로 전환
+            def.setStatus(CreationStatus.CREATED);
             return bean;
             
         } catch (NoSuchBeanDefinitionException e) {
@@ -104,15 +118,19 @@ public class SimpleBeanFactory implements BeanFactory {
                 + e.getMessage().split(" ")[0] // "dev.aloc.spring.MyRepository" 같은 부분
                 + "' 타입의 Bean 정의를 찾을 수 없습니다.";
             throw new BeanCreationException(message, e);
+            
         } catch (Exception e) {
             String message = "Bean '" + def.getBeanType().getName() + "' 생성 실패";
             throw new BeanCreationException(message, e);
         }
     }
     
-    /*
-     * 의존성 추가 및 빈등록이 모두 끝난 뒤 외부에서 검사 용도로만 사용
-     * getBean()과 달리 beans 목록에 없으면 defs에도 없는 상태가 됨, 생성 과정 없이 바로 에러 발생시킴
+    /**
+     * 주어진 클래스가 Bean으로 잘 만들어졌는지 테스트한다. 의존성 추가 및 빈등록이 모두 끝난 뒤 외부에서 검사 용도로만 사용한다.
+     *
+     * @param beanType Bean으로 잘 생성되었는지 검사하고자 하는 클래스
+     * @param <T>      beanType을 타입으로 가지는 실제 객체 반환을 위해 제네릭을 사용함.
+     * @return Bean으로 생성되었을 경우 해당 객체를 반환.
      */
     @Override
     public <T> T getExistingBean(Class<T> beanType) {
@@ -130,7 +148,12 @@ public class SimpleBeanFactory implements BeanFactory {
         return beanType.cast(bean);
     }
     
-    // 원시자료형일 경우 디폴트값 객체로 만들어주는 헬퍼메소드
+    /**
+     * createBean 메소드 내에서 원시자료형을 파라미터로 가지는 클래스의 경우 해당 타입의 디폴트값 객체를 반환한다.
+     *
+     * @param t 파라미터에 해당하는 원시자료형.
+     * @return t 타입의 디폴트값을 Object 형태로 반환한다.
+     */
     private Object defaultPrimitive(Class<?> t) {
         if (t == boolean.class) {
             return false;
