@@ -40,18 +40,18 @@ public final class InstantiationUtil {
         }
         
         // --- 규칙 3순위: 파라미터 개수가 가장 많은 생성자를 찾는다. ---
-        List<Constructor<?>> maxParamCtors = pickMaxParameterConstructors(ctors);
-        if (maxParamCtors.size() == 1) {
-            // 파라미터 개수가 가장 많은 생성자가 유일하다면, 그것을 선택하여 반환한다.
-            return maxParamCtors.get(0);
-        }
+//        List<Constructor<?>> maxParamCtors = pickMaxParameterConstructors(ctors);
+//        if (maxParamCtors.size() == 1) {
+//            // 파라미터 개수가 가장 많은 생성자가 유일하다면, 그것을 선택하여 반환한다.
+//            return maxParamCtors.get(0);
+//        }
         
         // --- 규칙 4순위: 'Bean' 타입 파라미터가 가장 많은 생성자를 찾는다. ---
-        List<Constructor<?>> mostBeanParamCtors = pickMostBeanParamConstructors(maxParamCtors);
-        if (mostBeanParamCtors.size() == 1) {
-            // 후보들 중에서 @Component가 붙은 '다른 부품(Bean)'을 가장 많이 필요로 하는 생성자를 반환한다.
-            return mostBeanParamCtors.get(0);
-        }
+//        List<Constructor<?>> mostBeanParamCtors = pickMostBeanParamConstructors(maxParamCtors);
+//        if (mostBeanParamCtors.size() == 1) {
+//            // 후보들 중에서 @Component가 붙은 '다른 부품(Bean)'을 가장 많이 필요로 하는 생성자를 반환한다.
+//            return mostBeanParamCtors.get(0);
+//        }
         
         // 위 모든 규칙으로도 하나의 생성자를 특정할 수 없다면, 모호하다는 에러를 발생시킨다.
         throw new IllegalStateException(type.getName() + ": Ambiguous constructors");
@@ -86,41 +86,41 @@ public final class InstantiationUtil {
         return autowired.get(0);
     }
     
-    /**
+    /*
      * 여러 생성자 중에서 파라미터 개수가 가장 많은 생성자들을 찾는다.
      *
      * @param ctors 검사할 생성자 배열
      * @return 파라미터 개수가 최대인 생성자들의 리스트
      */
-    private static List<Constructor<?>> pickMaxParameterConstructors(Constructor<?>[] ctors) {
-        // 1. 먼저 모든 생성자들 중에서 파라미터 개수의 최댓값을 찾는다.
-        int max = Arrays.stream(ctors).mapToInt(Constructor::getParameterCount).max().orElse(0);
-        // 2. 그 최댓값과 파라미터 개수가 동일한 생성자들만 필터링하여 리스트로 반환한다.
-        return Arrays.stream(ctors)
-            .filter(c -> c.getParameterCount() == max)
-            .toList();
-    }
+//    private static List<Constructor<?>> pickMaxParameterConstructors(Constructor<?>[] ctors) {
+//        // 1. 먼저 모든 생성자들 중에서 파라미터 개수의 최댓값을 찾는다.
+//        int max = Arrays.stream(ctors).mapToInt(Constructor::getParameterCount).max().orElse(0);
+//        // 2. 그 최댓값과 파라미터 개수가 동일한 생성자들만 필터링하여 리스트로 반환한다.
+//        return Arrays.stream(ctors)
+//            .filter(c -> c.getParameterCount() == max)
+//            .toList();
+//    }
     
-    /**
+    /*
      * 후보 생성자들 중에서 '@Component' 타입의 파라미터를 가장 많이 가진 생성자들을 찾는다.
      *
      * @param ctors 검사할 생성자 리스트 (이미 파라미터 개수가 최댓값인 후보들)
      * @return 'Bean' 타입 파라미터 개수가 최대인 생성자들의 리스트
      */
-    private static List<Constructor<?>> pickMostBeanParamConstructors(List<Constructor<?>> ctors) {
-        // 1. 후보 생성자들 중에서 'Bean' 타입 파라미터 개수의 최댓값을 계산한다.
-        int maxBeans = ctors.stream()
-            .mapToInt(c -> (int) Arrays.stream(c.getParameterTypes())
-                .filter(InstantiationUtil::isComponentType)
-                .count()) // isComponentType 메서드로 Bean인지 판별
-            .max().orElse(0);
-        
-        // 2. 그 최댓값과 'Bean' 파라미터 개수가 동일한 생성자들만 필터링하여 리스트로 반환한다.
-        return ctors.stream()
-            .filter(c -> Arrays.stream(c.getParameterTypes())
-                .filter(InstantiationUtil::isComponentType).count() == maxBeans)
-            .toList();
-    }
+//    private static List<Constructor<?>> pickMostBeanParamConstructors(List<Constructor<?>> ctors) {
+//        // 1. 후보 생성자들 중에서 'Bean' 타입 파라미터 개수의 최댓값을 계산한다.
+//        int maxBeans = ctors.stream()
+//            .mapToInt(c -> (int) Arrays.stream(c.getParameterTypes())
+//                .filter(InstantiationUtil::isComponentType)
+//                .count()) // isComponentType 메서드로 Bean인지 판별
+//            .max().orElse(0);
+//
+//        // 2. 그 최댓값과 'Bean' 파라미터 개수가 동일한 생성자들만 필터링하여 리스트로 반환한다.
+//        return ctors.stream()
+//            .filter(c -> Arrays.stream(c.getParameterTypes())
+//                .filter(InstantiationUtil::isComponentType).count() == maxBeans)
+//            .toList();
+//    }
     
     /**
      * 주어진 클래스 타입이 @Component 어노테이션을 가지고 있는지 확인한다.
