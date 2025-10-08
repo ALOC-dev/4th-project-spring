@@ -5,7 +5,6 @@ import dev.aloc.spring.mybeans.MyService;
 import java.util.Set;
 
 public class App {
-    
     /**
      * MyService와 MyRepository로 수동으로 bean을 만들고, 잘 만들어졌는지 결과를 출력한다. 빌드 시작하는 즉시 자동으로 bean을 만들어주는 기능은
      * 추후 ComponentScanner 클래스 완성되면 구현 예정
@@ -15,7 +14,9 @@ public class App {
     public static void main(String[] args) {
         
         // 일단 수동으로 MyService, MyRepository 클래스들을 매개변수로 넣어 Bean으로 만들어준다.
-        Set<Class<?>> beans = Set.of(MyService.class, MyRepository.class);
+        ComponentScanner scanner = new ClasspathComponentScanner();
+        Set<Class<?>> beans = scanner.scan("dev.aloc.spring");
+        System.out.println("Scanned components: " + beans);
         
         SimpleBeanFactory sbf = new SimpleBeanFactory();
         sbf.registerBeans(beans);
