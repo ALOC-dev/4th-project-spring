@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Component 어노테이션이 붙은 클래스들을 Bean으로 만들기 위한 클래스이다.
+ * &#64;Component 어노테이션이 붙은 클래스들을 Bean으로 만들기 위한 클래스이다.
  */
 public class SimpleBeanFactory implements BeanFactory {
     // Bean에 대한 메타정보를 담아두는 Map
@@ -19,7 +19,7 @@ public class SimpleBeanFactory implements BeanFactory {
     private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
     
     /**
-     * Component 어노테이션이 붙은 클래스들을 받아서 defs와 beans에 차례로 등록해준다. 처음에 모든 @Component 클래스에 대해
+     * &#64;Component 어노테이션이 붙은 클래스들을 받아서 defs와 beans에 차례로 등록해준다. 처음에 모든 @Component 클래스에 대해
      * BeanDefinition을 생성한다. 이를 통해 "defs 안에 있으면 반드시 bean으로 만들어야 하는 것"으로 간주할 수 있다.
      *
      * @param classesToRegister Component 어노테이션이 붙은 클래스들의 집합.
@@ -89,7 +89,7 @@ public class SimpleBeanFactory implements BeanFactory {
                 Class<?> type = paramTypes[i];
                 
                 if (defs.containsKey(type)) {
-                    // Component가 붙은 클래스를 매개변수로 갖는 경우: getBean으로 찾거나 생성.
+                    // &#64;Component가 붙은 클래스를 매개변수로 갖는 경우: getBean으로 찾거나 생성.
                     args[i] = getBean(type);
                     
                 } else if (type.isInterface()) {

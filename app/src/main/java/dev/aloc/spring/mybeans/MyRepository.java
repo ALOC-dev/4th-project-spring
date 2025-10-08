@@ -28,7 +28,11 @@ public class MyRepository {
         this.testno = 1;
     }
     
-    // test
+    /**
+     * Bean으로 잘 만들어졌는지 테스트를 위해 이 클래스의 정보를 출력한다.
+     *
+     * @throws Exception reflection 메소드를 사용할 때 발생할 수 있는 예외를 main으로 넘긴다.
+     */
     public void printInfo() throws Exception {
         // 패키지+클래스명 출력
         System.out.println(MyRepository.class.getName());

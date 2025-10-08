@@ -7,6 +7,9 @@ import dev.aloc.spring.exception.ConstructorResolutionException;
 import java.lang.reflect.Constructor;
 import java.util.Objects;
 
+/**
+ * Bean으로 등록할 클래스의 메타 정보를 저장한다. (스코프, 생성 상태, 생성자 및 파라미터 정보 등)
+ */
 public class BeanDefinition {
     
     // Bean의 타입
@@ -25,7 +28,7 @@ public class BeanDefinition {
     /**
      * BeanDefinition을 생성하면서 beanType 클래스의 생성자 및 매개변수들을 찾아 필드로 저장한다.
      *
-     * @param beanType BeanDefinition을 정의할 클래스 (Component 붙어있음)
+     * @param beanType BeanDefinition을 정의할 클래스 (&#64;Component 붙어있음)
      */
     public BeanDefinition(Class<?> beanType) {
         this.beanType = Objects.requireNonNull(beanType);

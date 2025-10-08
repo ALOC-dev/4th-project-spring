@@ -62,7 +62,7 @@ public final class InstantiationUtil {
      *
      * @param ctors 검사할 생성자 배열
      * @param owner 클래스 타입 (에러 메시지 표기용)
-     * @return Autowired가 붙은 생성자, 없으면 null 반환
+     * @return &#64;Autowired가 붙은 생성자, 없으면 null 반환
      */
     private static Constructor<?> pickAutowiredConstructorOrNull(Constructor<?>[] ctors,
         Class<?> owner) {
@@ -126,7 +126,7 @@ public final class InstantiationUtil {
      * 주어진 클래스 타입이 @Component 어노테이션을 가지고 있는지 확인한다.
      *
      * @param type 검사할 클래스 타입
-     * @return Component가 붙어있으면 true, 아니면 false
+     * @return &#64;Component가 붙어있으면 true, 아니면 false
      */
     private static boolean isComponentType(Class<?> type) {
         // 이 메서드를 통해 파라미터가 '일반 값'인지, 아니면 프레임워크가 관리하는 '다른 부품(Bean)'인지 구별한다.
