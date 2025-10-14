@@ -1,7 +1,7 @@
 package dev.aloc.spring;
 
-import dev.aloc.spring.mybeans.MyRepository;
-import dev.aloc.spring.mybeans.MyService;
+import dev.aloc.spring.testcomponents.MyRepository;
+import dev.aloc.spring.testcomponents.MyService;
 import java.util.Set;
 
 /**

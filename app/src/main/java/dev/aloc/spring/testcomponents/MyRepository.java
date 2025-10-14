@@ -1,4 +1,4 @@
-package dev.aloc.spring.mybeans;
+package dev.aloc.spring.testcomponents;
 
 import dev.aloc.spring.annotation.Component;
 import java.util.Arrays;
