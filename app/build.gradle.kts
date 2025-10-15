@@ -23,6 +23,7 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

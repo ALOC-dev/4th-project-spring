@@ -24,9 +24,9 @@ public class MyRepository {
     /**
      * 매개변수가 더 적은 생성자 (SimpleBeanFactory가 선택하면 안 되는 생성자).
      */
-    public MyRepository() {
-        this.testno = 1;
-    }
+//    public MyRepository() {
+//        this.testno = 1;
+//    }
     
     /**
      * Bean으로 잘 만들어졌는지 테스트를 위해 이 클래스의 정보를 출력한다.
