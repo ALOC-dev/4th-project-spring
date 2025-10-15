@@ -160,19 +160,18 @@ public class ClasspathComponentScanner implements ComponentScanner {
         }
         
         // @Component 존재 여부 확인
-        return hasAnnotationByName(clazz, COMPONENT_ANNOTATION_FQN);
+        return hasAnnotationByName(clazz);
     }
     
     /**
      * FQN 문자열 비교로 @Component 어노테이션의 존재 여부를 확인한다. 클래스 로더가 달라서 생기는 타입 비교 실패를 방지한다.
      *
-     * @param type          검사할 클래스
-     * @param annotationFqn &#64;Component 어노테이션의 완전 수식 이름 (FQN)
+     * @param type 검사할 클래스
      * @return &#64;Component 어노테이션이 존재하면 true를 반환한다.
      */
-    private boolean hasAnnotationByName(Class<?> type, String annotationFqn) {
+    private boolean hasAnnotationByName(Class<?> type) {
         for (Annotation ann : type.getAnnotations()) {
-            if (ann.annotationType().getName().equals(annotationFqn)) {
+            if (ann.annotationType().getName().equals(COMPONENT_ANNOTATION_FQN)) {
                 return true;
             }
         }
