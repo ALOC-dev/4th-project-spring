@@ -6,8 +6,14 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
-    application
+    // 웹 애플리케이션으로 빌드
+    war
+
+    // java 플러그인은 war가 이미 포함하고 있을 수 있어서 명시
+    java
+
+    // Gretty 플러그인을 추가해 내장 Tomcat 사용
+    id("org.gretty") version "4.1.10"
 }
 
 repositories {
@@ -23,7 +29,9 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
-    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+
+    // Servler API는 웹서버가 제공
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -33,12 +41,11 @@ java {
     }
 }
 
-application {
-    // Define the main class for the application.
-    mainClass = "org.example.App"
-}
-
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+gretty {
+    contextPath = "/" // contextPath를 'app' 대신 '/' (루트)로 강제 설정
 }
