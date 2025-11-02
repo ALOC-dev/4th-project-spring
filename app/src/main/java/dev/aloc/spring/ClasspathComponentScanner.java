@@ -165,16 +165,44 @@ public class ClasspathComponentScanner implements ComponentScanner {
     
     /**
      * FQN 문자열 비교로 @Component 어노테이션의 존재 여부를 확인한다. 클래스 로더가 달라서 생기는 타입 비교 실패를 방지한다.
+     * 메타 어노테이션(@Controller 등)도 체크한다.
      *
      * @param type 검사할 클래스
      * @return &#64;Component 어노테이션이 존재하면 true를 반환한다.
      */
     private boolean hasAnnotationByName(Class<?> type) {
         for (Annotation ann : type.getAnnotations()) {
-            if (ann.annotationType().getName().equals(COMPONENT_ANNOTATION_FQN)) {
+            if (hasComponentAnnotation(ann.annotationType())) {
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * 어노테이션 타입이 @Component를 가지고 있는지 재귀적으로 확인한다.
+     *
+     * @param annotationType 검사할 어노테이션 타입
+     * @return @Component가 있으면 true
+     */
+    private boolean hasComponentAnnotation(Class<? extends Annotation> annotationType) {
+        // 직접 @Component인지 확인
+        if (annotationType.getName().equals(COMPONENT_ANNOTATION_FQN)) {
+            return true;
+        }
+
+        // 메타 어노테이션 확인 (재귀적으로)
+        for (Annotation metaAnn : annotationType.getAnnotations()) {
+            Class<? extends Annotation> metaType = metaAnn.annotationType();
+            // java.lang 패키지의 기본 어노테이션은 스킵
+            if (metaType.getName().startsWith("java.lang.annotation.")) {
+                continue;
+            }
+            if (hasComponentAnnotation(metaType)) {
+                return true;
+            }
+        }
+
         return false;
     }
     
