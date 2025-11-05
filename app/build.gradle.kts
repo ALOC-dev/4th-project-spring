@@ -14,6 +14,13 @@ plugins {
 
     // Gretty 플러그인을 추가해 내장 Tomcat 사용
     id("org.gretty") version "4.1.10"
+
+    // main() 실행용
+    id("application")
+}
+
+application {
+    mainClass.set("dev.aloc.spring.App")
 }
 
 repositories {
@@ -29,6 +36,8 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("org.eclipse.jetty:jetty-server:11.0.24")
+    implementation("org.eclipse.jetty:jetty-servlet:11.0.24")
 
     // Servler API는 웹서버가 제공
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
