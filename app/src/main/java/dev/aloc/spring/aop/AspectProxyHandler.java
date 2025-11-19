@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 
 public class AspectProxyHandler implements InvocationHandler {
     
-    private final Class<?> target;
+    private final Object target;
     
-    public AspectProxyHandler(Class<?> target) {
+    public AspectProxyHandler(Object target) {
         this.target = target;
     }
     
@@ -19,7 +19,7 @@ public class AspectProxyHandler implements InvocationHandler {
         long endTime = System.nanoTime();
         
         System.out.println(
-            target.getName() + "." + method.getName() +
+            target.getClass().getName() + "." + method.getName() +
                 "실행 시간: " + (endTime - startTime) / 100000 + " ms");
         return result;
     }
