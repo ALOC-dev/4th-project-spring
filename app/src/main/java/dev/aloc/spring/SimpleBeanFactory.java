@@ -131,9 +131,6 @@ public class SimpleBeanFactory implements BeanFactory {
         beans.put(def.getBeanType(), beanToExpose);
       }
 
-      if (!beans.containsKey(def.getBeanType())) {
-        beans.put(def.getBeanType(), beanToExpose);
-      }
       def.setStatus(CreationStatus.CREATED);
       return beanToExpose;
 
